@@ -22,8 +22,21 @@ async function getCurrentWeatherOpenMeteo(latitude, longitude) {
     // let response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`);
     let response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&timezone=Europe%2FBerlin`)
     let data = await response.json();
-<<<<<<< HEAD
-    return data['current_weather'];
+    let result = '{ "temperature" : '+data["current_weather"]["temperature"]+',' +
+        ' "vent" :'+data["current_weather"]["windspeed"]+',' +
+        ' "serveur" :"open-meteo"}';
+    return JSON.parse(result);
+}
+
+async function getCurrentWeatherVisualCrossing(cityName) {
+    let response = await fetch(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${cityName}?unitGroup=metric&key=LLBEM9ZL9N349DP3EGU5UB522&contentType=json`)
+    let data = await response.json();
+
+    let result = '{ "temperature" : '+data["currentConditions"]["temp"]+',' +
+        ' "vent" :'+data["currentConditions"]["windspeed"]+',' +
+        ' "serveur" :"weather visualcrossing"}';
+
+    return JSON.parse(result);
 }
 
 let tableHeaders = ["Temperature", "vent", "API"]
@@ -56,21 +69,4 @@ function createWeatherTable() {
     weatherTable.append(weatherTableBody)
 
     tableDiv.append(weatherTable)
-=======
-    let result = '{ "temperature" : '+data["current_weather"]["temperature"]+',' +
-        ' "vent" :'+data["current_weather"]["windspeed"]+',' +
-        ' "serveur" :"open-meteo"}';
-    return JSON.parse(result);
-}
-
-async function getCurrentWeatherVisualCrossing(cityName) {
-    let response = await fetch(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${cityName}?unitGroup=metric&key=LLBEM9ZL9N349DP3EGU5UB522&contentType=json`)
-    let data = await response.json();
-
-    let result = '{ "temperature" : '+data["currentConditions"]["temp"]+',' +
-        ' "vent" :'+data["currentConditions"]["windspeed"]+',' +
-        ' "serveur" :"weather visualcrossing"}';
-
-    return JSON.parse(result);
->>>>>>> 0127ca2a8964084db8b940445253b0d16655bf14
 }
