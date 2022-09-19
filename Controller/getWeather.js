@@ -1,7 +1,9 @@
 
 
-function getLocation(cityName) {
-    return (0,0);
+async function getLocation(cityName) {
+    let response = await fetch("https://maps.googleapis.com/maps/api/geocode/json?address="+cityName+"&key=AIzaSyDdVJ6zE0-ZSqncFEb2H9oJe-hn05-kMqg");
+    let data = await response.json();
+    return data["results"][0]["geometry"]["location"];
 }
 
 async function getWeather(cityName) {
@@ -10,3 +12,5 @@ async function getWeather(cityName) {
     let data = await response.text();
     console.log(data);
 }
+
+getLocation("Marseille");
