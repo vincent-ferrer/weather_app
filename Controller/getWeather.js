@@ -22,5 +22,8 @@ async function getCurrentWeatherOpenMeteo(latitude, longitude) {
     // let response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`);
     let response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&timezone=Europe%2FBerlin`)
     let data = await response.json();
-    return data['current_weather'];
+    let result = '{ "temperature" : '+data["current_weather"]["temperature"]+',' +
+        ' "vent" :'+data["current_weather"]["windspeed"]+',' +
+        ' "serveur" :"open-meteo"}';
+    return JSON.parse(result);
 }
