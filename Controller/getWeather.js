@@ -55,7 +55,7 @@ async function getCurrentWeatherBit(latitude, longitude) {
 
     return {
         temperature: data["data"][0]["temp"],
-        vent: data["data"][0]["wind_spd"],
+        vent: data["data"][0]["wind_spd"]*3.6, // m/s -> km/h
         serveur: "weather bit"
     }
 }
