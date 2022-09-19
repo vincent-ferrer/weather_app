@@ -27,3 +27,14 @@ async function getCurrentWeatherOpenMeteo(latitude, longitude) {
         ' "serveur" :"open-meteo"}';
     return JSON.parse(result);
 }
+
+async function getCurrentWeatherVisualCrossing(cityName) {
+    let response = await fetch(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${cityName}?unitGroup=metric&key=LLBEM9ZL9N349DP3EGU5UB522&contentType=json`)
+    let data = await response.json();
+
+    let result = '{ "temperature" : '+data["currentConditions"]["temp"]+',' +
+        ' "vent" :'+data["currentConditions"]["windspeed"]+',' +
+        ' "serveur" :"weather visualcrossing"}';
+
+    return JSON.parse(result);
+}
