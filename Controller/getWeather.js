@@ -1,7 +1,8 @@
 $(document).ready(() => {
     console.log("ready");
+    createWeatherTable()
     $("#weather_btn").click(() => {
-        createWeatherTable()
+        $("#weatherTableBody").html("")
 
         getWeather($("#cityInput").val(), 2).then(data => fillWeatherTable(data))
     });
