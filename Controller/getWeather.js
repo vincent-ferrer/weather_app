@@ -22,6 +22,7 @@ async function getWeather(cityName, nbServeur) {
     data.push(await getCurrentWeatherOpenMeteo(coordinates.lat,coordinates.lng))
     data.push(await getCurrentWeatherVisualCrossing(cityName))
     data.push(await getCurrentWeatherBit(coordinates.lat,coordinates.lng))
+    data.push(calculConsensus(data))
 
     console.log(data)
     return data
@@ -113,4 +114,25 @@ function fillWeatherTable(data) {
         weatherRow.append(temp, wind, api)
         weatherTableBody.append(weatherRow)
     })
+}
+
+function calculConsensus(datas) {
+    temp = 0;
+    vent = 0;
+
+    console.log(datas)
+
+    datas.forEach(datas=>{
+        temp += datas["temperature"]
+        vent += datas["vent"]
+    })
+
+    temp = temp/datas.length
+    vent = vent/datas.length
+
+    return {
+        temperature: temp,
+        vent: vent,
+        serveur: "consensus"
+    }
 }
