@@ -39,6 +39,17 @@ async function getCurrentWeatherVisualCrossing(cityName) {
     return JSON.parse(result);
 }
 
+async function getCurrentWeatherBit(cityName) {
+    let loc = await getLocation(cityName).then();
+    let response = await fetch(`https://api.weatherbit.io/v2.0/current?lat=${loc["lat"]}&lon=${loc["lng"]}&key=92e7dcd0cafc46c7b3c2b3e19c93c3e4`)
+    let data = await response.json();
+    let result = '{ "temperature" : ' + data["data"][0]["temp"] + ',' +
+        ' "vent" :' + data["data"][0]["wind_spd"] + ',' +
+        ' "serveur" :"weather weather bit"}';
+
+    return JSON.parse(result);
+}
+
 let tableHeaders = ["Temperature", "vent", "API"]
 
 const tableDiv = $("#weatherTable")
