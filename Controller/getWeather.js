@@ -1,5 +1,4 @@
 $(document).ready(() => {
-    console.log("ready");
     createWeatherTable()
     $("#weather_btn").click(() => {
         $("#weatherTableBody").html("")
@@ -19,12 +18,114 @@ async function getWeather(cityName) {
     let coordinates = await getLocation(cityName)
     console.log(coordinates)
 
-    data.push(await getCurrentWeatherOpenMeteo(coordinates.lat,coordinates.lng))
-    data.push(await getCurrentWeatherVisualCrossing(cityName))
-    data.push(await getCurrentWeatherBit(coordinates.lat,coordinates.lng))
-    data.push(calculConsensus(data))
+    let tempServ1 = []
+    let tempServ2 = []
+    let tempServ3 = []
 
-    console.log(data)
+    let ventServ1 = []
+    let ventServ2 = []
+    let ventServ3 = []
+
+    let qualiteServ1 = []
+    let qualiteServ2 = []
+    let qualiteServ3 = []
+
+    let nameServ1
+    let nameServ2
+    let nameServ3
+
+    let xValues = []
+    for (i = 0; i < 10; ++i) {
+        xValues.push(new Date(Date.now()).toLocaleString())
+
+        dataServ1 = await getCurrentWeatherOpenMeteo(coordinates.lat,coordinates.lng)
+        dataServ2 = await getCurrentWeatherVisualCrossing(cityName)
+        dataServ3 = await getCurrentWeatherBit(coordinates.lat,coordinates.lng)
+
+        tempServ1.push(dataServ1["temperature"])
+        tempServ2.push(dataServ2["temperature"])
+        tempServ3.push(dataServ3["temperature"])
+
+        ventServ1.push(dataServ1["vent"])
+        ventServ2.push(dataServ2["vent"])
+        ventServ3.push(dataServ3["vent"])
+
+        qualiteServ1.push(dataServ1["tempsReponseServeur"])
+        qualiteServ2.push(dataServ2["tempsReponseServeur"])
+        qualiteServ3.push(dataServ3["tempsReponseServeur"])
+
+        nameServ1 = dataServ1["serveur"]
+        nameServ2 = dataServ2["serveur"]
+        nameServ3 = dataServ3["serveur"]
+
+        setTimeout(5000)
+    }
+
+    console.log(tempServ1)
+
+    new Chart($("#chartTemp"), {
+        type: "line",
+        data: {
+            labels: xValues,
+            datasets: [{
+                data: tempServ1,
+                borderColor: "red",
+                label: nameServ1
+            },{
+                data: tempServ2,
+                borderColor: "green",
+                label: nameServ2
+            },{
+                data: tempServ3,
+                borderColor: "blue",
+                label: nameServ3
+            }]
+        },
+        options: {}
+    });
+
+    new Chart($("#chartVent"), {
+        type: "line",
+        data: {
+            labels: xValues,
+            datasets: [{
+                data: ventServ1,
+                borderColor: "red",
+                label: nameServ1
+            },{
+                data: ventServ2,
+                borderColor: "green",
+                label: nameServ2
+            },{
+                data: ventServ3,
+                borderColor: "blue",
+                label: nameServ3
+            }]
+        },
+        options: {}
+    });
+
+    new Chart($("#chartQualite"), {
+        type: "line",
+        data: {
+            labels: xValues,
+            datasets: [{
+                data: qualiteServ1,
+                borderColor: "red",
+                label: nameServ1
+            },{
+                data: qualiteServ2,
+                borderColor: "green",
+                label: nameServ2
+            },{
+                data: qualiteServ3,
+                borderColor: "blue",
+                label: nameServ3
+            }]
+        },
+        options: {}
+    });
+
     return data
 }
 
@@ -47,7 +148,6 @@ async function getCurrentWeatherVisualCrossing(cityName) {
     let response = await fetch(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${cityName}?unitGroup=metric&key=LLBEM9ZL9N349DP3EGU5UB522&contentType=json`)
     let data = await response.json();
     tempsRep = Math.floor(Date.now() - tempsRep);
-    console.log(tempsRep)
     return {
         temperature: data["currentConditions"]["temp"],
         vent: data["currentConditions"]["windspeed"],
