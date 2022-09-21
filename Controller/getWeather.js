@@ -1,9 +1,8 @@
 $(document).ready(() => {
-    createWeatherTable()
     $("#weather_btn").click(() => {
         $("#weatherTableBody").html("")
 
-        getWeather($("#cityInput").val()).then(data => fillWeatherTable(data))
+        getWeather($("#cityInput").val()).then()
     });
 })
 
@@ -14,28 +13,31 @@ async function getLocation(cityName) {
 }
 
 async function getWeather(cityName) {
-    let data = []
     let coordinates = await getLocation(cityName)
-    console.log(coordinates)
 
     let tempServ1 = []
     let tempServ2 = []
     let tempServ3 = []
+    let tempConsensus = []
 
     let ventServ1 = []
     let ventServ2 = []
     let ventServ3 = []
+    let ventConsensus = []
 
     let qualiteServ1 = []
     let qualiteServ2 = []
     let qualiteServ3 = []
+    let qualiteConsensus = []
 
     let nameServ1
     let nameServ2
     let nameServ3
+    let servConsensus
 
     let xValues = []
-    for (i = 0; i < 10; ++i) {
+    for (let i = 0; i < 10; ++i) {
+        console.log(i)
         xValues.push(new Date(Date.now()).toLocaleString())
 
         dataServ1 = await getCurrentWeatherOpenMeteo(coordinates.lat,coordinates.lng)
@@ -54,14 +56,19 @@ async function getWeather(cityName) {
         qualiteServ2.push(dataServ2["tempsReponseServeur"])
         qualiteServ3.push(dataServ3["tempsReponseServeur"])
 
+        consensus = calculConsensus([dataServ1,dataServ2,dataServ3])
+
+        tempConsensus.push(consensus["temperature"])
+        ventConsensus.push(consensus["vent"])
+        qualiteConsensus.push(consensus["tempsReponseServeur"])
+
         nameServ1 = dataServ1["serveur"]
         nameServ2 = dataServ2["serveur"]
         nameServ3 = dataServ3["serveur"]
+        servConsensus = consensus["serveur"]
 
-        setTimeout(5000)
+
     }
-
-    console.log(tempServ1)
 
     new Chart($("#chartTemp"), {
         type: "line",
@@ -79,6 +86,10 @@ async function getWeather(cityName) {
                 data: tempServ3,
                 borderColor: "blue",
                 label: nameServ3
+            },{
+                data: tempConsensus,
+                borderColor: "black",
+                label: servConsensus
             }]
         },
         options: {}
@@ -100,6 +111,10 @@ async function getWeather(cityName) {
                 data: ventServ3,
                 borderColor: "blue",
                 label: nameServ3
+            },{
+                data: ventConsensus,
+                borderColor: "black",
+                label: servConsensus
             }]
         },
         options: {}
@@ -121,12 +136,15 @@ async function getWeather(cityName) {
                 data: qualiteServ3,
                 borderColor: "blue",
                 label: nameServ3
+            },{
+                data: qualiteConsensus,
+                borderColor: "black",
+                label: servConsensus
             }]
         },
         options: {}
     });
 
-    return data
 }
 
 async function getCurrentWeatherOpenMeteo(latitude, longitude) {
@@ -169,79 +187,25 @@ async function getCurrentWeatherBit(latitude, longitude) {
     }
 }
 
-let tableHeaders = ["Temperature", "vent", "API","Temps de reponse (ms)"]
-
-const tableDiv = $("#weatherTable")
-
-function createWeatherTable() {
-    while(tableDiv.firstChild) tableDiv.removeChild(tableDiv.firstChild);
-
-    let weatherTable = document.createElement('table')
-    weatherTable.className = "weatherTable"
-
-    let weatherTableHeader = document.createElement('thead')
-    weatherTableHeader.className = "weatherTableHeader"
-
-    let weatherTableHeaderRow = document.createElement('tr')
-    weatherTableHeaderRow.className = "weatherTableHeaderRow"
-
-    tableHeaders.forEach(header => {
-        let tableHeader = document.createElement('th')
-        tableHeader.innerHTML = header
-        weatherTableHeaderRow.append(tableHeader)
-    })
-
-    weatherTableHeader.append(weatherTableHeaderRow)
-    weatherTable.append(weatherTableHeader)
-
-    let weatherTableBody = document.createElement('tbody')
-    weatherTableBody.className = "weatherTableBody"
-    weatherTableBody.id = "weatherTableBody"
-    weatherTable.append(weatherTableBody)
-
-    tableDiv.append(weatherTable)
-}
-
-function fillWeatherTable(data) {
-    const weatherTableBody = $("#weatherTableBody")
-
-    data.forEach(data => {
-        let weatherRow = document.createElement('tr')
-        weatherRow.className = "weatherRow"
-
-        let temp = document.createElement('td')
-        temp.innerText = data["temperature"]
-
-        let wind = document.createElement('td')
-        wind.innerText = data["vent"]
-
-        let api = document.createElement('td')
-        api.innerText = data["serveur"]
-
-        let tempsReponse = document.createElement('td')
-        tempsReponse.innerText = data["tempsReponseServeur"]
-
-        weatherRow.append(temp, wind, api, tempsReponse)
-        weatherTableBody.append(weatherRow)
-    })
-}
-
 function calculConsensus(datas) {
     temp = 0;
     vent = 0;
+    qualiteServ = 0
 
     datas.forEach(datas=>{
         temp += datas["temperature"]
         vent += datas["vent"]
+        qualiteServ += datas["tempsReponseServeur"]
     })
 
     temp = temp/datas.length
     vent = vent/datas.length
+    qualiteServ = qualiteServ/datas.length
 
     return {
         temperature: temp,
         vent: vent,
         serveur: "consensus",
-        tempsReponseServeur: 0
+        tempsReponseServeur: qualiteServ
     }
 }
