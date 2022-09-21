@@ -2,7 +2,7 @@ $(document).ready(() => {
     $("#weather_btn").click(() => {
         $("#weatherTableBody").html("")
 
-        getWeather($("#cityInput").val()).then()
+        getWeather($("#cityInput").val()).then(data => createCharts(data))
     });
 })
 
@@ -15,81 +15,83 @@ async function getLocation(cityName) {
 async function getWeather(cityName) {
     let coordinates = await getLocation(cityName)
 
-    let tempServ1 = []
-    let tempServ2 = []
-    let tempServ3 = []
-    let tempConsensus = []
+    let jsonValue = {
+        dates: [],
+        tempServ1: [],
+        tempServ2: [],
+        tempServ3: [],
+        tempConsensus: [],
+        ventServ1: [],
+        ventServ2: [],
+        ventServ3: [],
+        ventConsensus: [],
+        qualiteServ1: [],
+        qualiteServ2: [],
+        qualiteServ3: [],
+        qualiteConsensus: [],
+        nameServ1: "",
+        nameServ2: "",
+        nameServ3: "",
+        servConsensus: ""
+    }
 
-    let ventServ1 = []
-    let ventServ2 = []
-    let ventServ3 = []
-    let ventConsensus = []
 
-    let qualiteServ1 = []
-    let qualiteServ2 = []
-    let qualiteServ3 = []
-    let qualiteConsensus = []
-
-    let nameServ1
-    let nameServ2
-    let nameServ3
-    let servConsensus
-
-    let xValues = []
     for (let i = 0; i < 10; ++i) {
         console.log(i)
-        xValues.push(new Date(Date.now()).toLocaleString())
+        jsonValue["dates"].push(new Date(Date.now()).toLocaleString())
 
         dataServ1 = await getCurrentWeatherOpenMeteo(coordinates.lat,coordinates.lng)
         dataServ2 = await getCurrentWeatherVisualCrossing(cityName)
         dataServ3 = await getCurrentWeatherBit(coordinates.lat,coordinates.lng)
 
-        tempServ1.push(dataServ1["temperature"])
-        tempServ2.push(dataServ2["temperature"])
-        tempServ3.push(dataServ3["temperature"])
+        jsonValue["tempServ1"].push(dataServ1["temperature"])
+        jsonValue["tempServ2"].push(dataServ2["temperature"])
+        jsonValue["tempServ1"].push(dataServ3["temperature"])
 
-        ventServ1.push(dataServ1["vent"])
-        ventServ2.push(dataServ2["vent"])
-        ventServ3.push(dataServ3["vent"])
+        jsonValue["ventServ1"].push(dataServ1["vent"])
+        jsonValue["ventServ2"].push(dataServ2["vent"])
+        jsonValue["ventServ3"].push(dataServ3["vent"])
 
-        qualiteServ1.push(dataServ1["tempsReponseServeur"])
-        qualiteServ2.push(dataServ2["tempsReponseServeur"])
-        qualiteServ3.push(dataServ3["tempsReponseServeur"])
+        jsonValue["qualiteServ1"].push(dataServ1["tempsReponseServeur"])
+        jsonValue["qualiteServ2"].push(dataServ2["tempsReponseServeur"])
+        jsonValue["qualiteServ3"].push(dataServ3["tempsReponseServeur"])
 
         consensus = calculConsensus([dataServ1,dataServ2,dataServ3])
 
-        tempConsensus.push(consensus["temperature"])
-        ventConsensus.push(consensus["vent"])
-        qualiteConsensus.push(consensus["tempsReponseServeur"])
+        jsonValue["tempConsensus"].push(consensus["temperature"])
+        jsonValue["ventConsensus"].push(consensus["vent"])
+        jsonValue["qualiteConsensus"].push(consensus["tempsReponseServeur"])
 
-        nameServ1 = dataServ1["serveur"]
-        nameServ2 = dataServ2["serveur"]
-        nameServ3 = dataServ3["serveur"]
-        servConsensus = consensus["serveur"]
-
+        jsonValue["nameServ1"] = dataServ1["serveur"]
+        jsonValue["nameServ2"] = dataServ2["serveur"]
+        jsonValue["nameServ3"] = dataServ3["serveur"]
+        jsonValue["servConsensus"] = consensus["serveur"]
 
     }
+    return jsonValue;
+}
 
+function createCharts(jsonValue) {
     new Chart($("#chartTemp"), {
         type: "line",
         data: {
-            labels: xValues,
+            labels: jsonValue["dates"],
             datasets: [{
-                data: tempServ1,
+                data: jsonValue["tempServ1"],
                 borderColor: "red",
-                label: nameServ1
+                label: jsonValue["nameServ1"]
             },{
-                data: tempServ2,
+                data: jsonValue["tempServ2"],
                 borderColor: "green",
-                label: nameServ2
+                label: jsonValue["nameServ2"]
             },{
-                data: tempServ3,
+                data: jsonValue["tempServ3"],
                 borderColor: "blue",
-                label: nameServ3
+                label: jsonValue["nameServ3"]
             },{
-                data: tempConsensus,
+                data: jsonValue["tempConsensus"],
                 borderColor: "black",
-                label: servConsensus
+                label: jsonValue["servConsensus"]
             }]
         },
         options: {}
@@ -98,23 +100,23 @@ async function getWeather(cityName) {
     new Chart($("#chartVent"), {
         type: "line",
         data: {
-            labels: xValues,
+            labels: jsonValue["dates"],
             datasets: [{
-                data: ventServ1,
+                data: jsonValue["ventServ1"],
                 borderColor: "red",
-                label: nameServ1
+                label: jsonValue["nameServ1"]
             },{
-                data: ventServ2,
+                data: jsonValue["ventServ2"],
                 borderColor: "green",
-                label: nameServ2
+                label: jsonValue["nameServ2"]
             },{
-                data: ventServ3,
+                data: jsonValue["ventServ3"],
                 borderColor: "blue",
-                label: nameServ3
+                label: jsonValue["nameServ3"]
             },{
-                data: ventConsensus,
+                data: jsonValue["ventConsensus"],
                 borderColor: "black",
-                label: servConsensus
+                label: jsonValue["servConsensus"]
             }]
         },
         options: {}
@@ -123,28 +125,27 @@ async function getWeather(cityName) {
     new Chart($("#chartQualite"), {
         type: "line",
         data: {
-            labels: xValues,
+            labels: jsonValue["dates"],
             datasets: [{
-                data: qualiteServ1,
+                data: jsonValue["qualiteServ1"],
                 borderColor: "red",
-                label: nameServ1
+                label: jsonValue["nameServ1"]
             },{
-                data: qualiteServ2,
+                data: jsonValue["qualiteServ2"],
                 borderColor: "green",
-                label: nameServ2
+                label: jsonValue["nameServ2"]
             },{
-                data: qualiteServ3,
+                data: jsonValue["qualiteServ3"],
                 borderColor: "blue",
-                label: nameServ3
+                label: jsonValue["nameServ3"]
             },{
-                data: qualiteConsensus,
+                data: jsonValue["qualiteConsensus"],
                 borderColor: "black",
-                label: servConsensus
+                label: jsonValue["servConsensus"]
             }]
         },
         options: {}
     });
-
 }
 
 async function getCurrentWeatherOpenMeteo(latitude, longitude) {
