@@ -2,11 +2,11 @@ $(document).ready(() => {
     $("#weather_btn").click(() => {
         $("#weatherTableBody").html("")
 
-        getWeather($("#cityInput").val()).then(data => createCharts(data))
+        getWeather($("#cityInput").val(), $("#APIKEYInput").val()).then(data => createCharts(data))
     });
 })
 
-async function getWeather(cityName) {
+async function getWeather(cityName, ApiKey) {
     let jsonValue = {
         dates: [],
         tempServ1: [],
@@ -32,14 +32,14 @@ async function getWeather(cityName) {
         console.log(i)
         jsonValue["dates"].push(new Date(Date.now()).toLocaleString())
 
-        let response = await fetch(`http://localhost:1337/getweather?cityName=${cityName}&uuid=7852576d-c932-490a-9867-a21295a5492c`)
+        let response = await fetch(`http://localhost:1337/getweather?cityName=${cityName}&uuid=${ApiKey}`)
         console.log(response);
         let data = await response.json();
         console.log({data})
 
         jsonValue["tempServ1"].push(data[0]["temperature"])
         jsonValue["tempServ2"].push(data[1]["temperature"])
-        jsonValue["tempServ1"].push(data[2]["temperature"])
+        jsonValue["tempServ3"].push(data[2]["temperature"])
 
         jsonValue["ventServ1"].push(data[0]["vent"])
         jsonValue["ventServ2"].push(data[1]["vent"])
