@@ -32,7 +32,7 @@ async function getWeather(cityName, ApiKey) {
         console.log(i)
         jsonValue["dates"].push(new Date(Date.now()).toLocaleString())
 
-        let response = await fetch(`http://https://protected-fortress-74874.herokuapp.com/getweather?cityName=${cityName}&uuid=${ApiKey}`)
+        let response = await fetch(`https://protected-fortress-74874.herokuapp.com/getweather?cityName=${cityName}&uuid=${ApiKey}`)
         console.log(response);
         let data = await response.json();
         console.log({data})
